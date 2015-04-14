@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'ostruct'
+
 class Main
     
     @@universes = []
@@ -15,22 +17,95 @@ class Main
                 @@universes.last.build line
             end
         end
-        
         @@universes.each do |universe|
-            universe.pretty_print
+            universe.final_state!.pretty_print
+            puts
         end
-        
     end
 end
 
 class Universe
+
+    attr_accessor :iterations
     
     def initialize()
         @grid = []
+        @iterations = []
     end
 
     def build(universe_line)
         @grid << universe_line.split('')
+    end
+
+    # Check if next iteration should perform
+    def next?
+        dup = @iterations.select { |e| @iterations.count(e) > 1  }
+        @iterations.empty? || @iterations.size < 1 || dup.size < @grid.size * 2
+    end
+
+    # Generate final state of the universe.=
+    def final_state!
+        while next?
+            @grid.each.with_index do |row, idx_row|
+                row.each.with_index do |col, idx_col|
+                    if col != 'I'
+                        neighbours = find_neighbours(idx_row, idx_col)
+                        count = 0
+                        neighbours.each do |ngh|
+                            if @grid[ngh.row][ngh.col] == 'S'
+                                count += 1
+                            end
+                        end
+                        if count >= 2
+                            @grid[idx_row][idx_col] = 'S'
+                        end
+                    end
+                end
+            end
+            @iterations << @grid.dup
+        end
+
+        self
+    end
+
+    def find_neighbours(idx_row, idx_col)
+        neighbours = []
+        # Top neighbour
+        ngh_row = idx_row - 1
+        ngh_col = idx_col
+        neighbour = validate_neighbour ngh_row, ngh_col
+        neighbours << neighbour unless neighbour.nil?
+
+
+        # Bottom neighbour
+        ngh_row = idx_row + 1
+        ngh_col = idx_col
+        neighbour = validate_neighbour ngh_row, ngh_col
+        neighbours << neighbour unless neighbour.nil?
+        
+        # Left neighbour
+        ngh_row = idx_row
+        ngh_col = idx_col - 1
+        neighbour = validate_neighbour ngh_row, ngh_col
+        neighbours << neighbour unless neighbour.nil?
+        
+        # Right neighbour
+        ngh_row = idx_row
+        ngh_col = idx_col + 1
+        neighbour = validate_neighbour ngh_row, ngh_col
+        neighbours << neighbour unless neighbour.nil?
+       
+        neighbours
+    end
+
+    def validate_neighbour(ngh_row, ngh_col)
+        if (ngh_row >= 0 && ngh_col >= 0) &&
+            (ngh_row < @grid.size && ngh_col < @grid[ngh_row].size)
+            struct = OpenStruct.new
+            struct.row = ngh_row
+            struct.col = ngh_col
+            struct
+        end
     end
 
     def pretty_print
@@ -40,10 +115,6 @@ class Universe
             end
             puts
         end
-    end
-
-    def size
-        @grid.size
     end
 end
 
