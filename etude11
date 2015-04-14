@@ -28,24 +28,21 @@ class Universe
 
     attr_accessor :iterations
     
-    def initialize()
+    def initialize
         @grid = []
-        @iterations = []
     end
 
     def build(universe_line)
         @grid << universe_line.split('')
     end
 
-    # Check if next iteration should perform
-    def next?
-        dup = @iterations.select { |e| @iterations.count(e) > 1  }
-        @iterations.empty? || @iterations.size < 1 || dup.size < @grid.size * 2
-    end
-
     # Generate final state of the universe.=
     def final_state!
-        while next?
+        current_changes = 0
+        previous_changes = nil
+        while current_changes != previous_changes || previous_changes.nil?
+            previous_changes = current_changes
+            current_changes = 0
             @grid.each.with_index do |row, idx_row|
                 row.each.with_index do |col, idx_col|
                     if col != 'I'
@@ -58,11 +55,11 @@ class Universe
                         end
                         if count >= 2
                             @grid[idx_row][idx_col] = 'S'
+                            current_changes += 1
                         end
                     end
                 end
             end
-            @iterations << @grid.dup
         end
 
         self
