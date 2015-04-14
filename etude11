@@ -2,16 +2,49 @@
 
 class Main
     
+    @@universes = []
+
     def self.execute
+        @@universes ||= []
+        @@universes << Universe.new
         STDIN.each_line do |line|
-            if line == ''
-                print 'empty'
+            line.chomp!
+            if line.empty?
+                @@universes << Universe.new
             else
-                puts line.chomp!
+                @@universes.last.build line
             end
         end
+        
+        @@universes.each do |universe|
+            universe.pretty_print
+        end
+        
+    end
+end
+
+class Universe
+    
+    def initialize()
+        @grid = []
+    end
+
+    def build(universe_line)
+        @grid << universe_line.split('')
+    end
+
+    def pretty_print
+        @grid.each do |row|
+            row.each do |col|
+               print col
+            end
+            puts
+        end
+    end
+
+    def size
+        @grid.size
     end
 end
 
 Main.execute
-
