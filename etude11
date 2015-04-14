@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+class Main
+    
+    def self.execute
+        STDIN.each_line do |line|
+            if line == ''
+                print 'empty'
+            else
+                puts line.chomp!
+            end
+        end
+    end
+end
+
+Main.execute
+
