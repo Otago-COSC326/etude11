@@ -17,9 +17,15 @@ class Main
                 @@universes.last.build line
             end
         end
-        @@universes.each do |universe|
-            universe.final_state!.pretty_print
-            puts
+        if ARGV[0].nil?
+            @@universes.each do |universe|
+                universe.final_state!.pretty_print
+                puts
+            end
+        elsif %w(-n -N).include? ARGV[0]
+            puts 'Find numbers here.'
+        else
+          puts 'Usage => ./etude11 {-n|-N} < input.txt'
         end
     end
 end
